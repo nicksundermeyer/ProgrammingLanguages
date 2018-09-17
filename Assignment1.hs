@@ -24,19 +24,15 @@ findMin xs =
 
 -- tupleDotProduct finds the dot product between two arbitrarily large lists of the same length
 -- list1 is the first list, and list2 is the second list
-tupleDotProduct list1 list2 = 
-    if (length list1 <= 1) then (head list1 * head list2)
-    else (head list1 * head list2) + tupleDotProduct (tail list1) (tail list2)
+tupleDotProduct [] [] = 0
+tupleDotProduct list1 list2 = (head list1 * head list2) + tupleDotProduct (tail list1) (tail list2)
 
 -- revZip2Lists takes two lists and creates a list with a pair from each list consecutively, reversed
 -- list1 is the first list, list2 is the second list
-revZip2Lists list1 list2 = 
-    if (null list1) then []
-    else (last list2, last list1) : revZip2Lists (init list1) (init list2)
+revZip2Lists [] [] = []
+revZip2Lists list1 list2 = (last list2, last list1) : revZip2Lists (init list1) (init list2)
 
 -- everyThird takes a list and constructs a new list with every third element in it
--- list is the list to parse from
-everyThird list = 
-    if (null list) then []
-    else if ((head list) `mod` 3  == 0) then (head list) : everyThird(tail list)
-    else everyThird(tail list)
+-- takes the list to be parsed as the single argument
+everyThird (first:second:third:next) = third : everyThird next
+everyThird _ = []
