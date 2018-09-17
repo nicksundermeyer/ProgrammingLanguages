@@ -11,3 +11,17 @@ findMin xs =
     if (length xs <= 1) then head xs
     else if (head xs > head(tail xs)) then findMin(tail xs)
     else findMin(head xs : tail(tail xs))
+
+tupleDotProduct list1 list2 = 
+    if (length list1 <= 1) then (head list1 * head list2)
+    else (head list1 * head list2) + tupleDotProduct (tail list1) (tail list2)
+
+-- revZip2Lists list1 list2 = 
+--     if (null list1) then []
+--     else if (length list1 == 1) then [(head list1, head list2)]
+--     else [(last list1, last list2)] : revZip2Lists(init list1, init list2)
+
+everyThird list = 
+    if (null list) then []
+    else if ((head list) `mod` 3  == 0) then (head list) : everyThird(tail list)
+    else everyThird(tail list)
