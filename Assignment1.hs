@@ -16,10 +16,9 @@ tupleDotProduct list1 list2 =
     if (length list1 <= 1) then (head list1 * head list2)
     else (head list1 * head list2) + tupleDotProduct (tail list1) (tail list2)
 
--- revZip2Lists list1 list2 = 
---     if (null list1) then []
---     else if (length list1 == 1) then [(head list1, head list2)]
---     else [(last list1, last list2)] : revZip2Lists(init list1, init list2)
+revZip2Lists list1 list2 = 
+    if (null list1) then []
+    else (last list2, last list1) : revZip2Lists (init list1) (init list2)
 
 everyThird list = 
     if (null list) then []
