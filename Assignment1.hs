@@ -1,3 +1,5 @@
+module A1c where
+
 -- sDotProduct takes the dot product of two tuples, multiplied by another scalar
 -- a is the scalar, (b,c) is the first tuple, and (d,e) is the second tuple for the dot product
 sDotProduct a (b,c) (d,e) = 
