@@ -1,5 +1,33 @@
 import Data.Maybe
 
+-- 9/24
+
+-- partial application of function
+multThree :: (Num a) => a -> a -> a -> a
+multThree x y z = x * y * z
+
+multTwoWithNine = multThree 9
+
+multByTen :: (Num a) => a -> a
+multByTen = (*10)
+
+subtractTen :: (Num a) => a -> a
+subtractTen = subtract 10
+
+applyTwice :: (a->a) -> a -> a
+applyTwice f x = f (f x)
+
+-- zipwith implementation
+myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+myZipWith _ [] _ = []
+myZipWith _ _ [] = []
+myZipWith f (x:xs) (y:ys) = f x y : myZipWith f xs ys
+
+-- map implementation
+myMap :: (a -> b) -> [a] -> [b]
+myMap _ [] = []
+myMap f (x:xs) = f x : map f xs
+
 -- 9/19
 
 -- binary tree
@@ -68,12 +96,12 @@ initials firstname lastname = [f] ++ " " ++ [l]
     where (f:_) = firstname -- binding pattern f:_ to String firstname
           (l:_) = lastname
 
-multThree :: (Num a) => a -> a -> a -> a
-multThree x y z = x * y * z
+-- multThree :: (Num a) => a -> a -> a -> a
+-- multThree x y z = x * y * z
 
--- same thing as multThree, but first argument is always 9
-multBy9 :: (Num a) => a -> a -> a
-multBy9 = multThree 9
+-- -- same thing as multThree, but first argument is always 9
+-- multBy9 :: (Num a) => a -> a -> a
+-- multBy9 = multThree 9
 
 -- 9/17
 
