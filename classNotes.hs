@@ -1,5 +1,89 @@
 import Data.Maybe
 
+-- 9/26
+
+sum' :: (Num a) => [a] -> a
+sum' xs = foldl (\acc x -> acc + x) 0 xs
+
+sum_curried :: (Num a) => [a] -> a
+sum_curried = foldl (+) 0;
+
+-- Foldl definition
+-- goes through a list and applies a function to each element, stores values in accumulator, returns acc at the end
+foldl' f z [] = z
+foldl' f z (x:xs) = foldl' f (f z x) xs
+
+-- Output examples
+-- *Main> foldl (+) 0 [1,2,3]
+-- 6
+-- *Main> foldl (/) 3 []
+-- 3.0
+-- *Main> foldl (/) 64 [4,2,4]
+-- 2.0
+-- *Main> foldl (*) 1 [3,2,1]
+-- 6
+-- *Main>
+
+-- Definition of foldr
+foldr' f z [] = z
+foldr' f z (x:xs) = f x (foldr' f z xs)
+
+-- Definition of map
+map' :: (a->b) -> [a] -> [b]
+map' _ [] = []
+map' f (x:xs) = f x:map f xs
+
+-- Definition of map using foldr
+-- Takes a function, gives out a list
+map_foldr :: (a->b) -> [a] -> [b]
+map_foldr f xs = foldr (\x acc -> f x : acc) [] xs -- apply function to each element of list with foldr
+
+-- Definition of map using foldl
+map_foldl :: (a->b) -> [a] -> [b]
+map_foldl f xs = foldl (\acc x -> acc ++ [f x]) [] xs
+
+-- Pattern matching example
+data Suit = Club | Diamond | Heart | Spade
+  deriving (Show, Eq, Enum) -- Defining necessary type classes
+data Rank = Two | Three | Four | Five | Six | Seven | Eight | Nine | Ten | Jack | Queen | King | Ace
+  deriving (Eq, Show, Ord, Enum) -- Eq = able to compare for equality, Show = printable, Ord = orderable
+data Card = Card (Rank) (Suit)
+  deriving (Show, Eq)
+
+type Deck = [Card]
+deck :: Deck
+deck = [Card val su | val <- [Two .. Ace], su <- [Club .. Spade]]
+
+-- Finding color of card
+data Color = Red | Black
+  deriving (Show, Eq)
+
+color :: Card -> Color
+color (Card _ su) = if(su == Club || su == Spade)
+                        then Black
+                    else Red
+
+-- find if cards are alternating colors
+alternateColors :: Card -> Card -> Bool
+alternateColors a b = color a /= color b
+
+-- Function to check if the second card follow the first
+follows :: Card -> Card -> Bool
+follows (Card Ace _) _ = False -- Base case, nothing follows ace since ace is high
+follows (Card a _) (Card b _) = if (b > a) then True else False -- Compare ranks
+
+-- Function check for pair of cards
+findPair [] = Nothing
+findPair (x:rest) = if length(filter (==x) rest) > 0
+                        then Just x
+                    else findPair rest
+
+-- findPair using foldl
+findPair' (x:rest) = if (foldl (\acc card -> (x==card) || acc) False rest)
+                        then Just x
+                    else findPair' rest
+                    
+
 -- 9/24
 
 -- partial application of function
