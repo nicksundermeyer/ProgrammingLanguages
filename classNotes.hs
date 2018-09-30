@@ -82,7 +82,6 @@ findPair (x:rest) = if length(filter (==x) rest) > 0
 findPair' (x:rest) = if (foldl (\acc card -> (x==card) || acc) False rest)
                         then Just x
                     else findPair' rest
-                    
 
 -- 9/24
 
@@ -115,16 +114,21 @@ myMap f (x:xs) = f x : map f xs
 -- 9/19
 
 -- binary tree
-data MyTree a = EmptyTree | MyNode (MyTree a) a (MyTree a)
+-- Test case: MyNode 1 (MyNode 2 Null Null) (MyNode 3 Null Null)
+data MyTree a = Null | MyNode (MyTree a) a (MyTree a)
     deriving Show -- allows us to print tree to see what it looks like
 
+toList :: MyTree a -> [a]
+toList Null = []
+toList (MyNode l a r) = toList l ++ [a] ++ toList r
+
 isEmpty :: MyTree a -> Bool
-isEmpty EmptyTree = True
+isEmpty Null = True
 isEmpty _ = False
 
 -- checking if MyTree contains a value
 contains :: Ord a => MyTree a -> a -> Bool
-contains EmptyTree _ = False
+contains Null _ = False
 contains (MyNode left value right) x
     | x == value = True
     | x < value = contains left x
@@ -132,18 +136,18 @@ contains (MyNode left value right) x
 
 -- can't modify existing tree, so need to build new parts of the tree when inserting or removing
 insert :: Ord a => MyTree a -> a -> MyTree a
-insert EmptyTree x = MyNode EmptyTree x EmptyTree -- insert into empty tree
+insert Null x = MyNode Null x Null -- insert into empty tree
 insert (MyNode left value right) x
     | value < x = MyNode left value (insert right x) -- need to rebuild entire pathway to node, can't just change the single value
     | otherwise = MyNode (insert left x) value right
 
 -- inorder traversal, put all values in order into a list
 inorder :: Ord a => MyTree a -> [a]
-inorder EmptyTree = []
+inorder Null = []
 inorder (MyNode left value right) = inorder left ++ [value] ++ inorder right
 
 doubleTree :: Num a => MyTree a -> MyTree a
-doubleTree EmptyTree = EmptyTree
+doubleTree Null = Null
 doubleTree (MyNode left value right) =
     (MyNode (doubleTree left) (2*value) (doubleTree right))
 
