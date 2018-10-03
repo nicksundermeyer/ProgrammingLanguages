@@ -1,5 +1,23 @@
 import Data.Maybe
 
+-- 10/1
+
+-- Setting up environment
+createEnv = []
+emptyEnv = []
+
+extendEnv :: (String, Integer) -> [(String, Integer)] -> [(String, Integer)]
+extendEnv (a,b) [] = [(a,b)]
+extendEnv (a,b) (bind:binds) = (a,b):(bind:binds)
+
+applyEnv :: String -> [(String,Integer)] -> Integer
+applyEnv name [] = error "Variable not found"
+applyEnv name ((n,value):binds) = if name == n
+                                    then value
+                                    else applyEnv name binds
+
+-- applyEnv "x" (extendEnv ("x",5) emptyEnv)  ->  5
+
 -- 9/26
 
 sum' :: (Num a) => [a] -> a
