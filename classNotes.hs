@@ -1,4 +1,83 @@
 import Data.Maybe
+import Data.Char
+
+-- 10/8
+
+-- IO
+
+reverseWords :: String -> String
+reverseWords = unwords . map reverse . words
+
+mainIO'' = do
+    line <- getLine
+    if null line
+        then return ()
+        else do
+            putStrLn $ reverseWords line
+            mainIO''
+
+mainIO' = do
+    let
+        x = 5
+        y = 10
+    putStrLn (show (x + y))
+
+mainIO = do
+        putStr "Enter your name: "
+        name <- getLine
+        putStrLn ("Hello " ++ name)
+
+-- Monad
+half x = if even x 
+            then Just (x `div` 2)
+            else Nothing
+
+-- Applicative functors
+-- *Main> Just (+3) <*> Just 2
+-- Just 5
+-- *Main> [(*2),(+3)] <*> [1,2,3]
+-- [2,4,6,4,5,6]
+
+-- Composing two functions together
+compose f g = (\x -> f (g x))
+
+-- Example ghci inputs
+-- *Main> map (\x -> negate (abs x)) [5,-3,-6,8,10]
+-- [-5,-3,-6,-8,-10]
+-- map (negate . abs) [5,-3,-6,8,10]
+-- [-5,-3,-6,-8,-10]
+-- *Main> map (negate . sum . tail) [[1..5],[3..6],[1..7]]
+-- [-14,-15,-27]
+
+-- 10/3
+
+-- Simple "compiler" example
+data Expr = T | F | Not Expr | And Expr Expr | Or Expr Expr
+    deriving (Show)
+
+instance Eq Expr where
+    T == T = True
+    T == F = False
+    F == T = False
+    F == F = True
+    Not e1 == Not e2 = (e1 == e2)
+    And e1 e2 == And e3 e4 = ((eval e1) && (eval e2)) == ((eval e3) && (eval e4))
+    Or e1 e2 == Or e3 e4 = ((eval e1) || (eval e2)) == ((eval e3) || (eval e4))
+    _ == _ = False
+
+eval :: Expr -> Bool
+eval T = True
+eval F = False
+eval (Not e) = not (eval e)
+eval (And e1 e2) = (eval e2) && (eval e2)
+eval (Or e1 e2) = (eval e1) || (eval e2)
+
+-- Two ways of doing factorial
+fact 0 = 1
+fact n = n*fact(n-1)
+
+fact' 0 acc = acc
+fact' n acc = fact'(n-1)(n*acc)
 
 -- 10/1
 

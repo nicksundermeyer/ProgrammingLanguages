@@ -1,0 +1,1 @@
+onlyLowercase :: [String] -> [String]
