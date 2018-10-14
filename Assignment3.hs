@@ -54,7 +54,7 @@ allAnswers f [] = Just []
 allAnswers f lst = allAnswersHelper f [] lst
 
 -- Helper function for allAnswers
-allAnswersHelper f acc [] = Just []
+allAnswersHelper f acc [] = Just acc
 allAnswersHelper f acc (x:xs) = 
     case (f x) of 
         Just l -> allAnswersHelper f (acc ++ l) xs
@@ -77,8 +77,8 @@ g f1 f2 pat =
         _ -> 0
 
 -- 2. countWildCards - take a Pattern and counts the number of WildcardPat it contains
-countWildCards :: Pattern -> Int
-countWildCards pat =
+countWildcards :: Pattern -> Int
+countWildcards pat =
     let
         count = 0
     in
