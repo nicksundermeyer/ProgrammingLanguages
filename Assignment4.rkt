@@ -9,20 +9,24 @@
                               (lambda () (f (+ x 1)))))))
                (lambda () (f 1))))
 
+; 1. downseries - takes three arguments, step, high, and low (all numbers), and produces a list of numbers from high to low separated by step, sorted in descending order
 (define (downseries step high low)
   (cond
     [(< high low) empty]
     [else (cons high (downseries step (- high step) low))]))
 
+; 2. meow-string-map - takes a list of strings, and appends "meow" to every string in the list
 (define (meow-string-map lst)
   (map (lambda (string) (string-append string "meow")) lst))
 
+; 3. list-ref-div - takes a list and a number n, returns the ith element where i is the quotient of n/list length
 (define (list-ref-div lst n)
   (cond
     [(null? lst) (error "list-ref-div: the list is empty")]
     [(< n 0) (error "list-ref-div: negative number")]
     [else (list-ref lst (quotient n (length lst)))]))
 
+; 4. next-k-items - takes a stream and a number k, and returns a list containing the next k elements of the stream
 (define (next-k-items s k)
   (letrec ([f (lambda (s k ans)
                 (let ([pr (s)])
@@ -31,95 +35,56 @@
                       (f (cdr pr) (- k 1) (cons (car pr) ans)))))])
     (f s k '() )))
 
-; Find kth item by finding next k items, taking last one
+; 5. kth-items - takes a stream and a number k, and returns the result of extracting k elements from the stream and taking the last one
 (define (kth-item s k)
   (list-ref (next-k-items s k) (- k 1)))
 
+; 6. negate-2-and-5 - generates a stream like the natural numbers, but with multiples of 2 and 5 negated
 (define negate-2-and-5
   (letrec ((f (lambda (x)
                 (cond
                   [(or (= (modulo x 2) 0) (= (modulo x 5) 0)) (cons (* -1 x) (lambda () (f (+ x 1))))]
                   [else (cons x (lambda () (f (+ x 1))))]))))
                (lambda () (f 1))))
-
+; 7. key-heart-start - generates a stream where elements alternate between key, heart, and yellow-star
 (define key-heart-star (lambda () (cons key (lambda () (cons heart (lambda () (cons yellow-star key-heart-star)))))))
 
+; 8. two-pairs-stream - takes a stream and returns a new stream where each element is 2 paired with the kth element of the stream
 (define (two-pairs-stream s)
   (letrec ((f (lambda (s)
                 (let ([pr (s)])
                   (cons (cons 2 (car pr)) (lambda () (f (cdr pr))))))))
                (lambda () (f s))))
 
+; 9. spin-stream - takes two lists xs and ys, and returns a stream which returns pairs of elements from each list, rotating through the lists forever
 (define (spin-stream xs ys)
   (define (helper x)
      (cons (cons (list-ref xs (modulo x (length xs))) (list-ref ys (modulo x (length ys))))
            (lambda () (helper (add1 x)))))
   (lambda () (helper 0)))
 
+; 10. kvpv-lookup - takes a value v and vector vec, locates the first element of the vector whose car is equal to v
 (define (kvpv-lookup v vec)
   (cond [(= (vector-length vec) 0) #f]
         [(not (pair? (vector-ref vec 0))) (kvpv-lookup v (vector-drop vec 1))] ;skip elements that aren't a pair
         [(equal? v (car (vector-ref vec 0))) (vector-ref vec 0)]
         [else (kvpv-lookup v (vector-drop vec 1))]))
 
-(define (helper-cached-lookup k vec lst)
-  (let ([cache-check (kvpv-lookup k vec)])
-    (cond [(equal? cache-check #f) (assoc k lst)]
-          [else (cons #t cache-check)])))
-      
-
+; 11. cached-lookup - takes a list and a number n, and looks up the number in the list using a cached method by first looking them up in the cache, then the list
 (define (cached-lookup lst n)
-  (let ([vec (make-vector n #f)] [i 0])
-    (lambda (k _) (let ([lookup (helper-cached-lookup k vec lst)])
+  (let ([vec (make-vector n)] [i 0]) ; make cache vector and i value to iterate through
+    (lambda (k _)
+      (let ([lookup (cached-lookup-helper k vec lst)]) ; lookup from cache and list
                (cond
                  [(equal? lookup #f) #f]
-                 [(equal? (car lookup) #t) lookup]
-                 [else (begin (vector-set! vec (modulo i n) lookup) (add1 i) (cons #f lookup))])))))
+                 [(equal? (car lookup) #t) lookup] 
+                 [else (begin ; add to cache if found in list
+                         (vector-set! vec (modulo i n) lookup)
+                         (add1 i)
+                         (cons #f lookup))])))))
 
-
-; 1)
-; notice, the first argument to check-expect is our test, the second argument is the expected result
-(check-expect (downseries 2 11 3) '(11 9 7 5 3))
-
-; 2)
-(check-expect (meow-string-map '("hi" "hello" "there")) '("himeow" "hellomeow" "theremeow"))
-
-; 3)
-; you should probably have one that exceeds the bounds of your list though, like 6
-(check-expect (list-ref-div (list 1 2 3) 0) 1)
-(check-expect (list-ref-div (list 1 2 3) 3) 2)
-
-; 4)
-; this assumes you have nats defined
-(check-expect (next-k-items nats 3) '(1 2 3))
-
-; 5)
-(check-expect (kth-item nats 3) 3)
-
-; 7)
-(check-expect (next-k-items key-heart-star 2) (list key heart))
-
-; 8)
-(check-expect (kth-item (two-pairs-stream nats) 2) '(2 . 2))
-
-; 9)
-(check-expect (next-k-items (spin-stream '(1 2 3) '("a" "b")) 6)
-              '((1 . "a") (2 . "b") (3 . "a") (1 . "b") (2 . "a") (3 . "b")))
-
-; 10)
-(check-expect (kvpv-lookup 2 '#((1 . 1) (2 . 1))) '(2 . 1))
-
-; 11)
-; this will test if you're getting the expected results from the cached-lookup
-(define tstlst '((1 . "a") (2 . "b") (3 . "c") (4 . "d") (5 . "e")))
-(define cl-fun (cached-lookup tstlst 3))
-(check-expect (cl-fun 6 tstlst) #f)
-(check-expect (cl-fun 1 tstlst) '(#f 1 . "a"))
-(check-expect (cl-fun 2 tstlst) '(#f 2 . "b"))
-(check-expect (cl-fun 3 tstlst) '(#f 3 . "c"))
-(check-expect (cl-fun 1 tstlst) '(#t 1 . "a"))
-(check-expect (cl-fun 4 tstlst) '(#f 4 . "d"))
-(check-expect (cl-fun 1 tstlst) '(#f 1 . "a"))
-(check-expect (cl-fun 1 tstlst) '(#t 1 . "a"))
-
-(test)
+; helper method to check cache for cached-lookup
+(define (cached-lookup-helper k vec lst)
+  (cond
+    [(equal? (kvpv-lookup k vec) #f) (assoc k lst)] ; value not found in cache
+    [else (cons #t (kvpv-lookup k vec))])) ; value found in cache
