@@ -10,7 +10,9 @@
 (struct numeric-expr (argone) #:transparent)
 (struct boolean-expr (argone) #:transparent)
 (struct identifier-expr (argone) #:transparent)
+(struct function-app (name param) #:transparent)
 
 (struct lambda-expr (parameter body) #:transparent)
+(struct closure (parameter body env) #:transparent) ; basically a lambda-expr plus an environment, to remember the environment at the time it was defined
 
 (struct let-expr (id value body) #:transparent)

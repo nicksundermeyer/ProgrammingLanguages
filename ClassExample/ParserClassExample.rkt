@@ -16,6 +16,7 @@
               math-operators
               bool-operators
               let-keywords
+              lambda-keywords
               keywords
               parens)
       (error (lambda (tok-ok? tok-name tok-value)
@@ -35,18 +36,18 @@
                           (let-expr (identifier-expr $4) (boolean-expr $5) $7)]
                  [(LEFTPAREN LET LEFTPAREN IDENTIFIER
                              LEFTPAREN LAMBDA LEFTPAREN IDENTIFIER RIGHTPAREN
-                             LEFTPAREN prog RIGHTPAREN RIGHTPAREN
-                             LEFTPAREN prog RIGHTPAREN
-                             prog RIGHTPAREN)
+                             prog RIGHTPAREN RIGHTPAREN
+                             prog RIGHTPAREN
+                             )
                           (let-expr (identifier-expr $4)
                                     (lambda-expr $8 $10)
                                     $13)]
+                 ;; Match a function application
+                 [(LEFTPAREN IDENTIFIER prog RIGHTPAREN) (function-app $2 $3)]
                  [(BOOLEAN) (boolean-expr $1)]
                  [(NUMERIC) (numeric-expr $1)]
                  [(IDENTIFIER) (identifier-expr $1)]
                  )
-             ;> (parsestr "(let (x 5) (plus x 3))")
-             ;(let-expr (identifier-expr "x") (numeric-expr 5) (plus-expr (identifier-expr "x") (numeric-expr 3)))
              )
       ))
 
@@ -56,3 +57,7 @@
 (define (parsestr str)
   (let ([in (open-input-string str)])
     (parse in)))
+
+;; Tests used
+; (parsestr "(let (f (lambda (x) (plus x 2))) (f 3))")
+; (let-expr (identifier-expr "f") (lambda-expr "x" (plus-expr (identifier-expr "x") (numeric-expr 2))) (function-app "f" (numeric-expr 3)))
