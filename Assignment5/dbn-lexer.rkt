@@ -100,12 +100,13 @@
    [(:or "ANTIALIAS" "Antialias")                   (token-ANTIALIAS)]
    
    ; literal numbers, these are all ints, make sure it's a good number (this returns #f if it isn't)
-   ;;; TODO: Add numbers, which should be a token-NUMERICVALUE and contain an actual number, not a string
+   ;;; Add numbers, which are a token-NUMERICVALUE and contain an actual number using lexeme
    [(:+ numeric)                                   (token-NUMERICVALUE (string->number lexeme))]
 
    ; identifiers
-   ;;; TODO: Add identifiers, which should be a token-IDENTIFIER and contain the lexeme
-   ; An identifier begins with an upper or lowercase letter and may be followed by uppercase letters, lowercase letters, and digits. 
+   ;;; Add identifiers, which are a token-IDENTIFIER and contain the lexeme
+   ; An identifier begins with an upper or lowercase letter and may be followed by uppercase letters, lowercase letters, and digits.
+   ; cons an alphabetic character with a sequence of either alphabetic or numberic characters
    [(:: (:+ alphabetic) (:* (:or alphabetic numeric))) (token-IDENTIFIER lexeme)]
 
    ; comments

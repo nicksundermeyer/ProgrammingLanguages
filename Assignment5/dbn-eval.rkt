@@ -70,8 +70,8 @@
           [else (foldl-and-exit fun result (rest lst))]))))
 
 (define (add-to-env env names vals)
-  (cond ([null? names] env)
-        (else (add-to-env (extend-env env (first names) (first vals)) (rest names) (rest vals)))))
+  (cond [(null? names) env]
+        [else (add-to-env (extend-env env (first names) (first vals)) (rest names) (rest vals))]))
 
 ; This function evaluates statements, but it also accumulates the
 ; environment, meaning that it will pass the environment from fun
@@ -88,13 +88,8 @@
     ; Print
     [(print-expr exp) (printf "~a~n" (eval-expr env exp)) env]
 
-    ; TODO: Add Line expressions - evaluate each for numeric value, then draw line
-    [(line-expr x1 x2 x3 x4)
-     (let ([x1-eval (eval-expr env x1)]
-           [x2-eval (eval-expr env x2)]
-           [x3-eval (eval-expr env x3)]
-           [x4-eval (eval-expr env x4)])
-       (draw-line x1-eval x2-eval x3-eval x4-eval)) env]
+    ; line-expr: takes four points as arguments, evaluate each for numeric value, then draws line between points
+    [(line-expr x1 x2 x3 x4) (draw-line (eval-expr env x1) (eval-expr env x2) (eval-expr env x3) (eval-expr env x4)) env]
     
     ; Assignment to a paper location, this is a special case
     [(assignment-expr (get-paper-loc x y) color)
@@ -106,13 +101,13 @@
        
 
     ; Assignment to a variable name, need to see if it's there first
-    ;;; TODO: Add variable assignment, this requires using the environment
-    ;;;       to see if it's there and creating it if it's not
-    [(assignment-expr (var-expr v) val)
-     (let ([ref (apply-env env v)])
-       (if ref
-           (setref! ref (eval-expr env val))
-           (extend-env env v (eval-expr env val))))]
+    ; assignment-expr: check environment for variable ID, if it's not there then create it, otherwise just setref
+    [(assignment-expr (var-expr e1) e2)
+    (let ([var (apply-env env e1)]
+          [val (eval-expr env e2)])
+      (if var
+          (setref! var val)
+          (extend-env env e1 val)))]
      
     
     ; the antialias expression, for setting up antialias stuff
@@ -184,20 +179,34 @@
     
     ; to create a function, we need to create a closure and store it in the
     ; current environment, so a new environment will be passed on here
-    ;;; TODO [(command-fun sym params body)
+    ; command-fun: creates a function by making a closure, storying it in the environment, and returning the new environment
     [(command-fun sym params body)
-     ((extend-env env sym (closure sym params body env)))]
+     (let ([close (closure sym params body env)])
+       (let ([newenv (extend-env env sym close)])
+         newenv))]
      
     ; and we do the same thing for the numbers
     ;;; TODO (Achievement) [(number-fun sym params body)
      
 
     ; now for expressions as statements, these we ignore the return value of
-    ;;; TODO: application as statements, I've left some comments to help you along
+    ;;; application as statements, I've left some comments to help you along
     ; [(apply-expr sym exprs)  
-     ; evaluate all the arugments, then call the function
+     ; evaluate all the arguments, then call the function
          ; make sure we found it, or return an error otherwise
        ; return the previous environment to be carried along
+
+    ; apply-expr: applies a function by looking up the function name in the environment, evaluating all the arguments
+    ; of the function into a list, extending the environment by walking through both these lists and extending the
+    ; environment with each element, and finally evaluating the function body with this new environment
+    
+    [(apply-expr sym exprs)
+     (let ([ref (apply-env env sym)])
+       (if ref
+           (let ([param-names (closure-params (deref ref))]
+                 [vals (map (λ (arg) (eval-expr env arg)) exprs)])
+               (eval-statements (add-to-env env param-names vals) (closure-body (deref ref))))
+           (error "undefined ref"))) env]
     ))
 
 (define (eval-expr env expr)
@@ -252,13 +261,18 @@
                         
 
     ; handle function application as an expression, these we care about the return value
-    ;;; TODO: function application as an expression (not a statement)--you should return
+    ;;; function application as an expression (not a statement)--you should return
     ; the result of the evaluation of all the statements in the body
     ; [(apply-expr sym exprs)
      ; evaluate all the arugments, then call the function
          ; make sure we found it, or return an error otherwise
                   ; grab the closure from the environment, which has parameters
                      ; then evaluate all the statements and return the result
+    [(apply-expr sym exprs)
+     (let ([ref (apply-env env sym)])
+       (if ref
+           (let ([param-names (closure-params (deref ref))]
+                 [vals (map (λ (arg) (eval-expr env arg)) exprs)])
+               (let ([result (eval-statements (add-to-env env param-names vals) (closure-body (deref ref)))]) result))
+           (error "undefined ref")))]
     ))
-  
-  

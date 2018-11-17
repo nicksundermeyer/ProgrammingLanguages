@@ -47,17 +47,15 @@
 
     (statement
      ; a statement is one of these many things
-     ;;; TODO: Add Paper, Pen, Line, Set and Repeat
-     [(PAPER expr) (paper-expr $2 100 100)]
-     [(PEN expr) (pen-expr $2)]
-     [(LINE expr expr expr expr) (line-expr $2 $3 $4 $5)]
-     [(SET IDENTIFIER expr) (assignment-expr $2 $3)]
-     [(REPEAT IDENTIFIER expr expr block) (repeat-expr $2 $3 $4 $5)]
+     ;;; Add Paper, Pen, Line, Set and Repeat
+     [(PAPER expr) (paper-expr $2 100 100)] ; takes expression and calls paper-expr with 100 for the width and height
+     [(PEN expr) (pen-expr $2)] ; calls pen-expr with expression
+     [(SET l-value expr) (assignment-expr $2 $3)] ; calls assignment-expr with the expression
+     [(LINE expr expr expr expr) (line-expr $2 $3 $4 $5)] ; takes four expressions (coordinates) and calls line-expr with them
+     [(REPEAT IDENTIFIER expr expr maybe-newlines block) (repeat-expr $2 $3 $4 $6)] ; takes an identifier followed by two expressions and a block, calls repeat-expr
 
      ; print, simply prints to the console
      [(PRINT expr ) (print-expr $2)]
-     [(SET l-value expr) (assignment-expr $2 $3)]
-     [(LINE expr expr expr expr) (line-expr $2 $3 $4 $5)]
      [(VALUE expr) (value-expr $2)]
     
      [(FOREVER maybe-newlines block) (forever-expr $3)]
@@ -104,7 +102,7 @@
 
     ; legal l-values in the language
     (l-value
-     ;;; TODO: Add variables (they are l-values)
+     ;;; Add variables (they are l-values)
      [(IDENTIFIER) (var-expr $1)]
     
      [(LEFTBRACKET expr expr RIGHTBRACKET) (get-paper-loc $2 $3)])
@@ -130,7 +128,7 @@
 
     (rvalues
      [(NUMERICVALUE) (numeric-expr $1)]
-     ;;; TODO: the second place you need to add variables, because they can also be r-values
+     ;;; Add variables as r-values
      [(IDENTIFIER) (var-expr $1)]
      
      [(LEFTBRACKET expr expr RIGHTBRACKET) (get-paper-loc $2 $3)]
